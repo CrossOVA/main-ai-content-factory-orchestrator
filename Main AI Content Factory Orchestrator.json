@@ -1,0 +1,1509 @@
+{
+  "name": "Main AI Content Factory Orchestrator",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "try {\n  let aiData = $input.item.json.message?.content || $input.item.json.content || $input.item.json.text;\n\n  // Если ИИ уже отдал готовый объект, то просто пробрасываем его дальше\n  if (typeof aiData === 'object' && aiData !== null) {\n    return [{ json: aiData }];\n  }\n\n  // Если отдал как текст с мусором - чистим и парсим\n  const cleanText = aiData.replace(/```json/g, '').replace(/```/g, '').trim();\n  return [{ json: JSON.parse(cleanText) }];\n\n} catch (e) {\n  return [{ json: { selected_id: \"NO_NEWS\", post_text: \"Ошибка парсинга\" } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6320,
+        -160
+      ],
+      "id": "3d255d4a-108f-4cfd-b18d-686ad8025053",
+      "name": "Parse AI JSON",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "GPT-5.5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=SANITIZED PORTFOLIO EXCERPT — AI CONTENT EDITOR SYSTEM PROMPT\n\nNote:\nThis is a portfolio-safe excerpt of a production prompt.\nClient-specific tone rules, exact style constraints, handle-association logic, banned phrase lists, examples, hashtag heuristics, and internal scoring/editorial rules are intentionally redacted.\n\nThe excerpt preserves the visible architecture of the prompt:\n\n* source cleaning\n* market-insight extraction\n* channel-specific generation\n* entity / handle governance\n* Telegram expansion logic\n* image-prompt generation\n* final QC layer\n* strict JSON output contract\n=====================================================================================\n\nYou are a social media editor for a crypto Twitter, Telegram and other channels.\n\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nCORE BEHAVIOR\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nSTYLE AND FRAMING\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nREADER VALUE RULE\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nPROHIBITED RHETORIC\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nENTITY AND HANDLE RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nREFERENCE LIST LOGIC\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nPRIORITY LOGIC\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nIMPLIED ENTITY AND ASSOCIATION LOGIC\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTWITTER RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTWITTER @HANDLE RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM INSIGHT STRUCTURE\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM VALUE RULE\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM QUESTION RULE\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM TICKER RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nTELEGRAM HASHTAG RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nIMAGE PROMPT RULES\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nFINAL QUALITY CHECK\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\nOUTPUT RULES (JSON ONLY):\nReturn strictly a JSON object matching this structure:\n{\n  \"selected_id\": \"Must be exactly the ID provided in the prompt\",\n  \"twitter\": ...,\n  \"telegram\": ...,\n  \"reddit_title\": \"Clickbait Reddit title\",\n  \"image_prompt\": ...\n}\n\nIf the TEXT below looks like just a link, like a promo, just a personal tweet or has no readable words,\nwrite only one word: \"skip\".",
+              "role": "system"
+            },
+            {
+              "content": "=CONTEXT\n\nThis item was selected by the upstream scoring and ranking system as a priority content candidate.\n\nCATEGORY:\n{{ $json.topic }}\n\nSELECTED ID:\n{{ $json.selected_id }}\n\nSOURCE TEXT:\n{{ $json.prompt_text }}\n\nAVAILABLE ENTITY / HANDLE REFERENCES:\n{{ $('Format Mentions for GPT').first().json.valid_mentions_string }}\n\nEDITORIAL INSTRUCTIONS\n\nUse the system prompt architecture to:\n\n* extract the actual market signal;\n* remove irrelevant source-author framing;\n* identify the reader-facing consequence;\n* apply entity / handle governance using only the provided reference list;\n* adapt the angle to the detected topic category;\n* generate the required JSON output.\n\nTOPIC ADAPTATION\n\nThe production workflow contains topic-specific editorial rules for urgency, scale, market pressure, narrative repricing, and risk framing.\n\n[DETAILED TOPIC-SPECIFIC RULES REDACTED FOR PORTFOLIO VERSION]\n\nReturn the result using the JSON contract from the system prompt."
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -7200,
+        -176
+      ],
+      "id": "462c0c03-77a3-4ba8-8709-3c4a061d7f87",
+      "name": "AI Content Editor",
+      "credentials": {
+        "openAiApi": {
+          "id": "HeXxZmNT6spcKG3k",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4c48387b-f1f3-418d-912f-7eddd0c14db3",
+              "leftValue": "={{ $json.new_story_found }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -7920,
+        -48
+      ],
+      "id": "30dc0a6e-812e-4eff-add2-6f2e1477d6e7",
+      "name": "Check Fresh News",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchData = $('When Executed by Another Workflow').first().json;\nconst tweets = searchData.data || [];\nconst users = searchData.includes?.users || []; // Тянем юзернеймы\n\n// 1. Убираем дубликаты (баяны из Google Sheets)\nlet postedIds = [];\ntry {\n  postedIds = $input.all().map(item => item.json.tweet_id).filter(id => id);\n} catch (e) {}\n\n// ------------------------------------------------------------------\n// Чистим текст до \"смыслового\" содержимого.\n// Цель: отрезать твиты, где есть только @mentions, ссылки, хэштеги, тикеры, эмодзи или мусорные CTA.\n// ------------------------------------------------------------------\n\nfunction cleanMeaningfulText(text) {\n  return (text || '')\n    .replace(/https?:\\/\\/\\S+/g, ' '\n    .replace(/(^|\\s)@\\w+/g, ' '\n    .replace(/(^|\\s)#\\w+/g, ' ')\n    .replace(/(^|\\s)\\$[A-Za-z][A-Za-z0-9_]{0,15}\\b/g, ' ')\n    .replace(/[^\\p{L}\\p{N}\\s]+/gu, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction getMeaningfulWordCount(text) {\n  const cleaned = cleanMeaningfulText(text);\n  return (cleaned.match(/[\\p{L}\\p{N}]{2,}/gu) || []).length;\n}\n\nfunction getMentionCount(text) {\n  return ((text || '').match(/(^|\\s)@\\w+/g) || []).length;\n}\n\nfunction getUrlCount(text) {\n  return ((text || '').match(/https?:\\/\\/\\S+/g) || []).length;\n}\n\nfunction getTickerCount(text) {\n  return ((text || '').match(/\\$[A-Za-z][A-Za-z0-9_]{0,15}\\b/g) || []).length;\n}\n\n// ------------------------------------------------------------------\n// Главный junk-фильтр.\n// Он режет:\n// - пустые/почти пустые твиты\n// - твиты только из упоминаний + ссылок\n// - Telegram/реферальный спам\n// - примитивный призывы для взаимодействия\n// - слишком короткие тексты без фактуры\n// ------------------------------------------------------------------\n\nfunction isJunkTweet(tweet) {\n  const text = tweet.text || '';\n  const raw = text.trim();\n  const meaningfulWordCount = getMeaningfulWordCount(text);\n  const mentionCount = getMentionCount(text);\n  const urlCount = getUrlCount(text);\n  const tickerCount = getTickerCount(text);\n\n  if (raw.length < 3) return true;\n\n  // Пример вида: \"@saylor @BTCFoundation @titlejt https://t.co/...\"\n  // После удаления mentions/links/tickers не остаётся смыслового текста.\n  const onlyEntitiesAndLinks =\n    meaningfulWordCount < 2 && (mentionCount > 0 || urlCount > 0 || tickerCount > 0);\n\n  if (onlyEntitiesAndLinks) return true;\n\n  // Явный спам.\n  const isTelegramSpam =\n    /link in bio|telegram|follow along|entry and exit|exact chart|closed another trade|clean \\+\\d{2,4}% profit|\\+\\d{2,4}% profit|deposit \\$?\\d+|cashback|sign up with my link/i.test(text);\n\n  if (isTelegramSpam) return true;\n\n  // Дешёвая работа на публику без полезной фактуры.\n  const isPureEngagementBait =\n    /are you buying|holding or out|pick one|thoughts\\?|agree\\?|yes or no|👇/i.test(text)\n    && meaningfulWordCount < 10;\n\n  if (isPureEngagementBait) return true;\n\n  // Текст, который состоит почти только из обращения и короткой эмоции.\n  // Пример: \"@user based\", \"@user lol\", \"@user true\".\n  const isTinyReply =\n    mentionCount > 0 &&\n    meaningfulWordCount < 3 &&\n    raw.length < 60;\n\n  if (isTinyReply) return true;\n\n  return false;\n}\n\n// ------------------------------------------------------------------\n// freshTweets теперь не просто \"не дубли\", а \"не дубли + не мусор\".\n\nconst freshTweets = tweets\n  .filter(t => !postedIds.includes(t.id))\n  .filter(t => !isJunkTweet(t));\n\nif (freshTweets.length === 0) {\n  return [{\n    json: {\n      new_story_found: false,\n      reason: 'No fresh non-junk tweets found'\n    }\n  }];\n}\n\n// 2. Тема и Оценка\n\nfunction getTopic(text) {\n  const lower = (text || '').toLowerCase();\n\n  if (lower.match(/hack|hacked|exploit|breach|stolen|scam|rug pull|rugpull|vulnerability|attack|compromised/i)) return 'scandal';\n\n  if (lower.match(/memecoin|meme coin|pepe|doge|shib|bonk|floki|wojak|wen|baby|inu\\b/i)) return 'memecoin';\n\n  const tickers = (text || '').match(/\\$[A-Z]{3,6}/g) || [];\n  const hasAltcoin = tickers.some(ticker => !ticker.match(/\\$(BTC|ETH|USDT|USDC|BUSD)/i));\n\n  if (\n    hasAltcoin ||\n    lower.match(/solana|cardano|polkadot|avalanche|polygon|chainlink|uniswap|ripple|xrp|\\$sol\\b|\\$ada\\b|\\$dot\\b|\\$avax\\b|\\$matic\\b|\\$link\\b|\\$uni\\b/i)\n  ) return 'altcoin';\n\n  if (lower.match(/ath|all-time high|all time high|record high|new high|highest ever|historic high/i)) return 'ath';\n\n  if (lower.match(/etf|exchange.traded.fund|spot etf|bitcoin etf|ethereum etf/i)) return 'etf';\n\n  if (lower.match(/whale|whales|large holder|top wallet|major holder|dormant wallet|wallet moves|massive transfer/i)) return 'whale';\n\n  if (lower.match(/sec|cftc|regulation|regulated|lawsuit|sued|banned|ban |legal|court|judge|fine|penalty|compliance/i)) return 'regulation';\n\n  // Важно: Saylor по-прежнему может быть institutional,\n  // но твиты только с упоминаниями от @saylor уже будут отрезаны мусорным-фильтром выше.\n  if (lower.match(/microstrategy|saylor|blackrock|grayscale|fidelity|tesla|institutional|institutions buy|corporate treasury|wall street/i)) return 'institutional';\n\n  if (lower.match(/listing|listed|lists|delist|binance listing|coinbase listing|kraken listing|new pair/i)) return 'listing';\n\n  if (lower.match(/surge|soar|plunge|crash|dump|dumps|pump|pumps|spike|spikes|drop|drops|rally|rallies|\\+\\d{2}%|\\-\\d{2}%|up \\d{1,2}%|down \\d{1,2}%/i)) return 'price_movement';\n\n  if (lower.match(/partnership|partners with|partner|integrat|integration|collaborat|collaboration|teams up|joins forces/i)) return 'partnership';\n\n  if (lower.match(/upgrade|upgrades|hard fork|fork|mainnet|testnet|update|updates|launch|launches|deploys/i)) return 'upgrade';\n\n  if (lower.match(/ethereum|\\$eth\\b|eth |vitalik|buterin|eip-|layer 2|l2/i)) return 'ethereum';\n\n  if (lower.match(/bitcoin|\\$btc\\b|btc |satoshi|nakamoto|lightning network|taproot|ordinals/i)) return 'bitcoin';\n\n  return 'other';\n}\n\nfunction calculateScore(tweet) {\n  const metrics = tweet.public_metrics || {};\n  const likes = metrics.like_count || 0;\n  const retweets = metrics.retweet_count || 0;\n  const replies = metrics.reply_count || 0;\n\n  let score = (likes * 1) + (retweets * 3) + (replies * 2);\n\n  const ageHours = (Date.now() - new Date(tweet.created_at).getTime()) / (1000 * 60 * 60);\n  const freshness = Math.max(0, 100 - (ageHours * 10));\n  score += freshness;\n\n  const textOriginal = tweet.text || '';\n  const text = textOriginal.toLowerCase();\n\n  // ----------------------------------------------------------------\n  // Смысловые признаки и штрафы.\n  // Даже если мусорный твит не был отрезан фильтром, он не должен побеждать.\n  // ----------------------------------------------------------------\n\n  const meaningfulWordCount = getMeaningfulWordCount(textOriginal);\n  const mentionCount = getMentionCount(textOriginal);\n  const urlCount = getUrlCount(textOriginal);\n\n  if (meaningfulWordCount < 4) score -= 500;\n  if (mentionCount >= 2) score -= 150;\n  if (urlCount > 0 && meaningfulWordCount < 6) score -= 200;\n\n  if (/link in bio|telegram|follow along|entry and exit|exact chart|closed another trade|clean \\+\\d{2,4}% profit|\\+\\d{2,4}% profit|deposit \\$?\\d+|cashback|sign up with my link/i.test(textOriginal)) {\n    score -= 1000;\n  }\n\n  // Старые бонусы за хайп-слова.\n  ['pump', 'surge', 'rocket', 'moon', 'explode', 'breakout', 'rally'].forEach(keyword => {\n    if (text.includes(keyword)) score += 100;\n  });\n\n  const tickerMatches = textOriginal.match(/\\$[A-Z]{3,6}/g);\n  if (tickerMatches) score += tickerMatches.length * 50;\n\n  // НОВОЕ: небольшой бонус за наличие фактуры.\n  // Не слишком большой, чтобы не поощрять длинные полотна.\n  if (meaningfulWordCount >= 8) score += 40;\n  if (meaningfulWordCount >= 15) score += 30;\n\n  // НОВОЕ: бонус за цифры/данные. Такие твиты чаще дают материал для поста.\n  if (/\\d+(\\.\\d+)?%|\\$\\d+|\\d+[kmb]\\b|all-time high|7-year low|30 days|one month/i.test(textOriginal)) {\n    score += 60;\n  }\n\n  return Math.round(score);\n}\n\n// 3. Распределение по тирам\n\nconst priorityGroups = { tier1: [], tier2: [], tier3: [], tier4: [] };\n\nfreshTweets.forEach(t => {\n  const score = calculateScore(t);\n  const topic = getTopic(t.text);\n  const enriched = {\n    ...t,\n    score,\n    topic,\n    meaningful_text: cleanMeaningfulText(t.text),\n    meaningful_word_count: getMeaningfulWordCount(t.text)\n  };\n\n  if (['memecoin', 'altcoin', 'scandal'].includes(topic)) {\n    priorityGroups.tier1.push(enriched);\n  } else if (['ath', 'etf', 'whale', 'regulation', 'institutional', 'listing'].includes(topic)) {\n    priorityGroups.tier2.push(enriched);\n  } else if (['price_movement', 'partnership', 'upgrade'].includes(topic)) {\n    priorityGroups.tier3.push(enriched);\n  } else {\n    priorityGroups.tier4.push(enriched);\n  }\n});\n\n// Берём лучшую доступную группу\nlet finalTweets = [];\n\nif (priorityGroups.tier1.length > 0) {\n  finalTweets = priorityGroups.tier1;\n} else if (priorityGroups.tier2.length > 0) {\n  finalTweets = priorityGroups.tier2;\n} else if (priorityGroups.tier3.length > 0) {\n  finalTweets = priorityGroups.tier3;\n} else {\n  finalTweets = priorityGroups.tier4;\n}\n\n// Сортируем топ по убыванию баллов\nfinalTweets.sort((a, b) => b.score - a.score);\n\n// Если ничего не нашли\nif (finalTweets.length === 0) {\n  return [{\n    json: {\n      new_story_found: false,\n      reason: 'No ranked candidates after junk filtering'\n    }\n  }];\n}\n\n// Режем массив до 5 элементов\nconst topCandidates = finalTweets.slice(0, 5);\n\n// Возвращаем массив из элементов для цикла\nreturn topCandidates.map(tweet => {\n  // Ищем юзернейм автора по его ID\n  const author = users.find(u => u.id === tweet.author_id);\n\n  return {\n    json: {\n      new_story_found: true,\n      selected_id: tweet.id,\n      topic: tweet.topic,\n      score: tweet.score,\n\n      // НОВОЕ: диагностические поля.\n      // Нужны, чтобы видеть, почему твит прошёл и сколько в нём смысла.\n      meaningful_word_count: tweet.meaningful_word_count,\n      meaningful_text: tweet.meaningful_text,\n\n      prompt_text: tweet.text,\n      author_username: author ? author.username : \"unknown\"\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8112,
+        -48
+      ],
+      "id": "9155e625-23c6-4437-9478-d07474d5a19e",
+      "name": "Score & Rank Tweets. Prepare AI Prompt",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f893f370-1c74-4961-9de3-70e68d65f0f5",
+              "leftValue": "={{ $json.message.content.twitter.toLowerCase() }}",
+              "rightValue": "skip",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "ec625a7f-ffe1-4a8f-b300-95c92de838b5",
+              "leftValue": "={{ $json.message.content.twitter.toLowerCase() }}",
+              "rightValue": "=\\bi\\s*can(?:not|[’']?t)\\s+(?:open|access|view|read|fetch|load|see|analyse|analyze|follow|browse)\\b.*\\b(?:link|links|url|urls|image|photo|picture|media|screenshot|tweet|post|web|internet)\\b",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "c2c47727-b9a3-4435-ac75-2e97e355e29d",
+              "leftValue": "={{ $json.message.content.twitter.toLowerCase() }}",
+              "rightValue": "\\b(paste|provide|send|share)\\s+(?:the\\s+)?(?:tweet|post)\\s+text\\b|\\bsend\\s+(?:a\\s+)?screenshot\\b|\\bneed\\s+(?:the\\s+)?text\\b",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "ab7a04a4-f60f-4c94-8304-5e0f87b3cb49",
+              "leftValue": "={{ $json.message.content.twitter.toLowerCase() }}",
+              "rightValue": "\\b(no|not\\s+enough|insufficient)\\s+context\\b|\\bcontext\\s+needed\\b|\\bi\\s*(?:am|’m|'m)\\s*(?:unable|not\\s+able)\\s+to\\b|\\bas\\s+an\\s+ai\\b",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "e30b023c-33d5-4b5c-a6c4-c070985190a2",
+              "leftValue": "={{ $json.message.content.twitter }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "64097302-56dc-409b-8bf9-85d34243529d",
+              "leftValue": "={{ $json.message.content.twitter }}",
+              "rightValue": "skip",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -6896,
+        -176
+      ],
+      "id": "58e56ee0-d731-4365-91c6-97ae4806adbf",
+      "name": "Agent Said “skip” or Glitched?"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "<GOOGLE_SHEET_ID>",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Golden_Mentions",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -8336,
+        -272
+      ],
+      "id": "8ce0320d-e4d8-475f-81ce-6272ee5d9e7e",
+      "name": "Read Golden Mentions",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleApi": {
+          "id": "UEP3suFgwRT2sq5y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const mentionsData = $input.all();\nconst mentions = mentionsData\n  .map(row => row.json.Handle)\n  .filter(handle => handle && handle.trim() !== '')\n  .filter(handle => handle.startsWith('@'));\n\nconst validMentionsString = mentions.join(', ');\n\nconsole.log('✅ Mentions for GPT:', validMentionsString);\n\nreturn [{\n  json: {\n    valid_mentions_string: validMentionsString,\n    mentions_count: mentions.length,\n  }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8144,
+        -272
+      ],
+      "id": "297fc8ac-a902-49d3-a9f6-b641b4f49933",
+      "name": "Format Mentions for GPT"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c08fea3f-69d0-4a95-a928-7994bff375fb",
+              "leftValue": "={{ $json.selected_id }}",
+              "rightValue": "NO_NEWS",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -6112,
+        -80
+      ],
+      "id": "b1ed4d0d-d7ba-491c-be87-d9136789af8e",
+      "name": "Check If No News",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -7472,
+        -192
+      ],
+      "id": "f5f4effd-ae44-46b4-b79e-c5c542f77aa1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.4",
+          "mode": "list",
+          "cachedResultName": "GPT-5.4"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=SYSTEM PROMPT — SANITIZED PORTFOLIO VERSION\n\nYou are a social media writer for a crypto Telegram channel.\n\nTASK:\nCreate one concise Telegram-native mini post based on:\n\n[PRODUCTION PROMPT REMOVED FOR PORTFOLIO EXPORT]\n\n[EXACT CHANNEL VOICE, SLANG RULES, BANNED CONSTRUCTIONS, EMOJI FORMULA, CHARACTER LIMIT, LINE STRUCTURE, TICKER RULES, HASHTAG LOGIC, AND FORMATTING CONSTRAINTS REDACTED]\n\nOUTPUT RULE:\nReturn only the final Telegram post.",
+              "role": "system"
+            },
+            {
+              "content": "=\n\nOriginal tweet:\n\"{{ $('Content Commit Gate').item.json.original_tweet }}\"\n\nOur reply:\n\"{{ $('Parse AI JSON').item.json.twitter }}\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -4704,
+        304
+      ],
+      "id": "5074f6b2-7906-4005-8f9e-254cbc08f409",
+      "name": "Make mini-TG Post",
+      "credentials": {
+        "openAiApi": {
+          "id": "HeXxZmNT6spcKG3k",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "@PROJECT_A_CHANNEL",
+        "text": "={{ $json.message.content }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4352,
+        304
+      ],
+      "id": "7484cbba-4dfa-4393-9c99-03a90c09314c",
+      "name": "Send mini post on TG1",
+      "webhookId": "cefa4e5b-dc7c-490f-8a3d-5b0ec82e387f",
+      "credentials": {
+        "telegramApi": {
+          "id": "7sX2yrucrmBdFFtS",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiData = $json;\nconst sourceData = $('Loop Over Items').item.json;\n\nreturn [{\n  json: {\n    ...aiData,\n    original_tweet: sourceData.prompt_text || '',\n    original_selected_id: sourceData.selected_id || '',\n    original_topic: sourceData.topic || '',\n    original_author_username: sourceData.author_username || ''\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5888,
+        -160
+      ],
+      "id": "5d122c4d-766b-46d5-81b8-13055371bb24",
+      "name": "Merge Winner Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst now = Date.now();\n\n// ===== РУЧНЫЕ РУБИЛЬНИКИ =====\n// true  = полностью отключить PROJECT_A_URL и все его приоритеты.\n// false = включить PROJECT_A_URL и утренний приоритетный слот.\nconst PROJECT_A_URL_PAUSED_SWITCH = false;\n\n// ===== PROJECT D CONFIG =====\nconst PROJECT_D_TZ = 'Europe/Moscow';\nconst PROJECT_D_DAY_START_HOUR = 10;\nconst PROJECT_D_DAY_END_HOUR = 21;\nconst PROJECT_D_MAX_PER_DAY = 2;\n\n// ===== PROJECT A URL CONFIG =====\nconst PROJECT_A_URL_TZ = 'Europe/Moscow';\n\n// 06:00 МСК – начало резерва слота Project A под URL.\n// Если URL сегодня ещё не был, обычные run_project_a / run_project_a_mini с этого момента блокируются.\nconst PROJECT_A_URL_RESERVE_START_MIN = 6 * 60;\n\n// 07:00 МСК – целевое время.\n// С этого момента URL может выйти самостоятельно, даже если обычный Project A ещё не созрел.\nconst PROJECT_A_URL_TARGET_MIN = 7 * 60;\n\n// 08:00 МСК – конец идеального окна.\n// Это НЕ дедлайн. После 08:00 URL всё равно должен выйти при первой безопасной возможности.\nconst PROJECT_A_URL_IDEAL_END_MIN = 8 * 60;\n\n// Минимальный разрыв от последнего Project A поста.\nconst PROJECT_A_URL_MIN_GAP_MS = 90 * 60 * 1000;\n\n// ===== HELPERS =====\nfunction getDayParts(ts, timeZone) {\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: false,\n  }).formatToParts(new Date(ts));\n\n  const map = {};\n  for (const p of parts) {\n    if (p.type !== 'literal') map[p.type] = p.value;\n  }\n\n  const hour = Number(map.hour);\n  const minute = Number(map.minute);\n\n  return {\n    dayKey: `${map.year}-${map.month}-${map.day}`,\n    hour,\n    minute,\n    minuteOfDay: hour * 60 + minute,\n  };\n}\n\n// ===== INIT =====\nif (sd.PROJECT_A_NEXT_AT === undefined) sd.PROJECT_A_NEXT_AT = 0;\nif (sd.PROJECT_A_MINI_NEXT_AT === undefined) sd.PROJECT_A_MINI_NEXT_AT = 0;\nif (sd.PROJECT_B_NEXT_AT === undefined) sd.PROJECT_B_NEXT_AT = 0;\nif (sd.PROJECT_C_NEXT_AT === undefined) sd.PROJECT_C_NEXT_AT = 0;\n\nif (sd.PROJECT_B_POST_COUNT === undefined) sd.PROJECT_B_POST_COUNT = 0;\nif (sd.PROJECT_C_POST_COUNT === undefined) sd.PROJECT_C_POST_COUNT = 0;\n\n// Project A URL init\nif (sd.PROJECT_A_URL_DAY_KEY === undefined) sd.PROJECT_A_URL_DAY_KEY = '';\nif (sd.PROJECT_A_LAST_POST_AT === undefined) sd.PROJECT_A_LAST_POST_AT = 0;\n\n// Применяем ручной рубильник.\n// ВАЖНО: это намеренно перезаписывает static data при каждом запуске,\n// чтобы изменение PROJECT_A_URL_PAUSED_SWITCH в коде сразу вступало в силу.\nsd.PROJECT_A_URL_PAUSED = PROJECT_A_URL_PAUSED_SWITCH;\n\n// Project D init\nif (sd.PROJECT_D_NEXT_AT === undefined) sd.PROJECT_D_NEXT_AT = 0;\nif (sd.PROJECT_D_DAY_KEY === undefined) sd.PROJECT_D_DAY_KEY = '';\nif (sd.PROJECT_D_DAY_COUNT === undefined) sd.PROJECT_D_DAY_COUNT = 0;\n\n// ===== ЕЖЕДНЕВНЫЙ СБРОС PROJECT D =====\nconst projectDTime = getDayParts(now, PROJECT_D_TZ);\n\nif (sd.PROJECT_D_DAY_KEY !== projectDTime.dayKey) {\n  sd.PROJECT_D_DAY_KEY = projectDTime.dayKey;\n  sd.PROJECT_D_DAY_COUNT = 0;\n}\n\n// ===== PROJECT A / PROJECT A URL ОКНА =====\nconst projectATime = getDayParts(now, PROJECT_A_URL_TZ);\n\nconst raw_run_project_a = now >= sd.PROJECT_A_NEXT_AT;\n\nconst raw_run_project_a_mini =\n  now >= sd.PROJECT_A_MINI_NEXT_AT &&\n  now < sd.PROJECT_A_NEXT_AT;\n\nconst project_a_url_paused = sd.PROJECT_A_URL_PAUSED === true;\nconst project_a_url_enabled = !project_a_url_paused;\n\nconst project_a_url_done_today =\n  sd.PROJECT_A_URL_DAY_KEY === projectATime.dayKey;\n\nconst project_a_url_not_done =\n  project_a_url_enabled &&\n  !project_a_url_done_today;\n\nconst project_a_url_reserve_started =\n  projectATime.minuteOfDay >= PROJECT_A_URL_RESERVE_START_MIN;\n\nconst project_a_url_target_reached =\n  projectATime.minuteOfDay >= PROJECT_A_URL_TARGET_MIN;\n\nconst project_a_url_in_ideal_window =\n  projectATime.minuteOfDay >= PROJECT_A_URL_RESERVE_START_MIN &&\n  projectATime.minuteOfDay < PROJECT_A_URL_IDEAL_END_MIN;\n\nconst project_a_url_ideal_window_missed =\n  projectATime.minuteOfDay >= PROJECT_A_URL_IDEAL_END_MIN &&\n  project_a_url_not_done;\n\nconst project_a_url_gap_ok =\n  now - sd.PROJECT_A_LAST_POST_AT >= PROJECT_A_URL_MIN_GAP_MS;\n\n// С 06:00 и до публикации сегодняшнего URL\n// весь Project A слот зарезервирован под URL.\nconst project_a_url_blocks_project_a_like =\n  project_a_url_not_done &&\n  project_a_url_reserve_started;\n\n// В 06:00-08:00 URL может забрать созревший Project A слот,\n// если обычный Project A или Mini уже созрели и разбег выдержан.\nconst project_a_like_slot_due =\n  raw_run_project_a ||\n  raw_run_project_a_mini;\n\nconst project_a_url_can_claim_reserved_slot =\n  project_a_url_not_done &&\n  project_a_url_reserve_started &&\n  project_a_url_in_ideal_window &&\n  project_a_like_slot_due &&\n  project_a_url_gap_ok;\n\n// С 07:00 URL может выйти самостоятельно,\n// даже если обычный Project A ещё не созрел.\n// После 08:00 это условие всё равно остаётся активным:\n// если URL ещё не вышел, он выходит при первом безопасном разбеге.\nconst project_a_url_can_run_by_target =\n  project_a_url_not_done &&\n  project_a_url_target_reached &&\n  project_a_url_gap_ok;\n\nlet run_project_a = false;\nlet run_project_a_url = false;\n\n// Приоритет URL:\n// 1) с 06:00 до 08:00 он может забрать созревший слот Project A;\n// 2) с 07:00 он может выйти самостоятельно;\n// 3) после 08:00 он всё равно обязан выйти при первом безопасном gap.\nif (\n  project_a_url_can_claim_reserved_slot ||\n  project_a_url_can_run_by_target\n) {\n  run_project_a_url = true;\n  run_project_a = false;\n\n} else if (project_a_url_blocks_project_a_like) {\n  // С 06:00 до выхода сегодняшнего URL обычный полноценный Project A не выпускаем.\n  run_project_a_url = false;\n  run_project_a = false;\n\n} else if (raw_run_project_a) {\n  // Обычный Project A работает только:\n  // - до 06:00;\n  // - если URL уже был сегодня;\n  // - если URL-логика выключена рубильником.\n  run_project_a = true;\n  run_project_a_url = false;\n}\n\n// Project A Mini тоже блокируется утренним URL-резервом.\n// Если URL-логика выключена, Mini работает как раньше.\nconst run_project_a_mini =\n  !run_project_a_url &&\n  !project_a_url_blocks_project_a_like &&\n  raw_run_project_a_mini;\n\n// ===== ПРОЧИЕ ОКНА =====\nconst run_project_b = now >= sd.PROJECT_B_NEXT_AT;\nconst run_project_c = now >= sd.PROJECT_C_NEXT_AT;\n\nconst project_d_daytime =\n  projectDTime.hour >= PROJECT_D_DAY_START_HOUR &&\n  projectDTime.hour < PROJECT_D_DAY_END_HOUR;\n\nconst run_project_d =\n  project_d_daytime &&\n  sd.PROJECT_D_DAY_COUNT < PROJECT_D_MAX_PER_DAY &&\n  now >= sd.PROJECT_D_NEXT_AT;\n\n// Генерация нужна, если открыт хотя бы один слот\nconst can_generate =\n  run_project_a ||\n  run_project_a_url ||\n  run_project_a_mini ||\n  run_project_b ||\n  run_project_c ||\n  run_project_d;\n\nreturn [{\n  json: {\n    can_generate,\n\n    run_project_a,\n    run_project_a_url,\n    run_project_a_mini,\n    run_project_b,\n    run_project_c,\n    run_project_d,\n\n    now,\n\n    // Дебаг Project A\n    raw_run_project_a,\n    raw_run_project_a_mini,\n\n    // Дебаг Project A URL\n    project_a_url_enabled,\n    project_a_url_paused,\n    project_a_url_done_today,\n    project_a_url_not_done,\n    project_a_url_day_key: sd.PROJECT_A_URL_DAY_KEY,\n    project_a_url_current_day_key: projectATime.dayKey,\n    project_a_url_hour: projectATime.hour,\n    project_a_url_minute: projectATime.minute,\n    project_a_url_minute_of_day: projectATime.minuteOfDay,\n\n    project_a_url_reserve_started,\n    project_a_url_target_reached,\n    project_a_url_in_ideal_window,\n    project_a_url_ideal_window_missed,\n    project_a_url_gap_ok,\n    project_a_url_blocks_project_a_like,\n    project_a_like_slot_due,\n    project_a_url_can_claim_reserved_slot,\n    project_a_url_can_run_by_target,\n\n    project_a_last_post_at: sd.PROJECT_A_LAST_POST_AT,\n    project_a_next_at: sd.PROJECT_A_NEXT_AT,\n    project_a_mini_next_at: sd.PROJECT_A_MINI_NEXT_AT,\n\n    // Дебаг Project D\n    project_d_day_key: sd.PROJECT_D_DAY_KEY,\n    project_d_day_count: sd.PROJECT_D_DAY_COUNT,\n    project_d_daytime,\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8960,
+        -256
+      ],
+      "id": "006e46de-3853-43ff-ada1-260a6d8d2a22",
+      "name": "Content Pre-Gate"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "26cff59d-50bf-4f08-8f76-ea9bc4bb6914",
+              "leftValue": "={{ $json.can_generate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -8784,
+        -256
+      ],
+      "id": "8b5564ea-2a00-4287-bb45-a910cf7b6adc",
+      "name": "Can Generate?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst now = Date.now();\n\n// ===== PROJECT D CONFIG =====\nconst PROJECT_D_TZ = 'Europe/Moscow';\nconst PROJECT_D_DAY_START_HOUR = 10;\nconst PROJECT_D_DAY_END_HOUR = 21;\nconst PROJECT_D_MAX_PER_DAY = 2;\n\n// После поста Project D ждёт 3.5-5.5 часов.\n// Но дневной лимит всё равно жёстко ограничивает максимум 2 поста.\nconst PROJECT_D_BASE_COOLDOWN_MS = 3.5 * 60 * 60 * 1000;\nconst PROJECT_D_RANDOM_COOLDOWN_MS = 2 * 60 * 60 * 1000;\n\n// ===== PROJECT A URL CONFIG =====\nconst PROJECT_A_URL_TZ = 'Europe/Moscow';\n\n// ===== HELPERS =====\nfunction getDayParts(ts, timeZone) {\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: false,\n  }).formatToParts(new Date(ts));\n\n  const map = {};\n  for (const p of parts) {\n    if (p.type !== 'literal') map[p.type] = p.value;\n  }\n\n  const hour = Number(map.hour);\n  const minute = Number(map.minute);\n\n  return {\n    dayKey: `${map.year}-${map.month}-${map.day}`,\n    hour,\n    minute,\n    minuteOfDay: hour * 60 + minute,\n  };\n}\n\n// ===== READ CONTEXT =====\nconst pre = $('Content Pre-Gate').first().json;\nconst merged = $('Merge Winner Context').item.json;\n\n// ===== INIT =====\nif (sd.PROJECT_B_POST_COUNT === undefined) sd.PROJECT_B_POST_COUNT = 0;\nif (sd.PROJECT_C_POST_COUNT === undefined) sd.PROJECT_C_POST_COUNT = 0;\n\n// Глобальный счетчик для сквозного чередования режимов Project D\nif (sd.PROJECT_D_POST_COUNT === undefined) sd.PROJECT_D_POST_COUNT = 0;\n\nif (sd.PROJECT_A_NEXT_AT === undefined) sd.PROJECT_A_NEXT_AT = 0;\nif (sd.PROJECT_A_MINI_NEXT_AT === undefined) sd.PROJECT_A_MINI_NEXT_AT = 0;\nif (sd.PROJECT_B_NEXT_AT === undefined) sd.PROJECT_B_NEXT_AT = 0;\nif (sd.PROJECT_C_NEXT_AT === undefined) sd.PROJECT_C_NEXT_AT = 0;\n\n// Project A URL init\nif (sd.PROJECT_A_URL_DAY_KEY === undefined) sd.PROJECT_A_URL_DAY_KEY = '';\nif (sd.PROJECT_A_LAST_POST_AT === undefined) sd.PROJECT_A_LAST_POST_AT = 0;\n\n// Fallback только для debug/безопасности.\n// Рубильник управляется в Content Pre-Gate через PROJECT_A_URL_PAUSED_SWITCH.\nif (sd.PROJECT_A_URL_PAUSED === undefined) sd.PROJECT_A_URL_PAUSED = true;\n\nif (sd.PROJECT_D_NEXT_AT === undefined) sd.PROJECT_D_NEXT_AT = 0;\nif (sd.PROJECT_D_DAY_KEY === undefined) sd.PROJECT_D_DAY_KEY = '';\nif (sd.PROJECT_D_DAY_COUNT === undefined) sd.PROJECT_D_DAY_COUNT = 0;\n\n// ===== DAILY RESET FOR PROJECT D =====\nconst projectDTime = getDayParts(now, PROJECT_D_TZ);\n\nif (sd.PROJECT_D_DAY_KEY !== projectDTime.dayKey) {\n  sd.PROJECT_D_DAY_KEY = projectDTime.dayKey;\n  sd.PROJECT_D_DAY_COUNT = 0;\n}\n\n// ===== FLAGS FROM PRE-GATE =====\nconst run_project_a = !!pre.run_project_a;\nconst run_project_a_url = !!pre.run_project_a_url;\nconst run_project_a_mini = !!pre.run_project_a_mini;\nconst run_project_b = !!pre.run_project_b;\nconst run_project_c = !!pre.run_project_c;\nconst run_project_d = !!pre.run_project_d;\n\nif (\n  !run_project_a &&\n  !run_project_a_url &&\n  !run_project_a_mini &&\n  !run_project_b &&\n  !run_project_c &&\n  !run_project_d\n) {\n  return [{\n    json: {\n      run_project_a: false,\n      run_project_a_url: false,\n      run_project_a_mini: false,\n      run_project_b: false,\n      run_project_c: false,\n      run_project_d: false,\n      skip_all: true,\n\n      project_a_url_paused: sd.PROJECT_A_URL_PAUSED,\n      project_a_url_day_key: sd.PROJECT_A_URL_DAY_KEY,\n      project_a_last_post_at: sd.PROJECT_A_LAST_POST_AT,\n      project_a_next_at: sd.PROJECT_A_NEXT_AT,\n      project_a_mini_next_at: sd.PROJECT_A_MINI_NEXT_AT,\n    }\n  }];\n}\n\n// ===== ANTI-COLLISION DELAYS =====\nlet delay_project_b_min = 0;\nlet delay_project_c_min = 0;\nlet delay_project_d_min = 0;\n\n// URL Project A считается таким же важным событием, как полноценный Project A,\n//  и Project A Mini.\nconst projectALikeEvent =\n  run_project_a ||\n  run_project_a_url ||\n  run_project_a_mini;\n\nif (projectALikeEvent) {\n  if (run_project_b) {\n    delay_project_b_min = Math.floor(Math.random() * 15) + 15; // 15-29\n  }\n\n  if (run_project_c) {\n    delay_project_c_min = Math.floor(Math.random() * 20) + 45; // 45-64\n  }\n\n  if (run_project_d) {\n    delay_project_d_min = Math.floor(Math.random() * 25) + 75; // 75-99\n  }\n} else {\n  if (run_project_b && run_project_c) {\n    delay_project_c_min = Math.floor(Math.random() * 15) + 20; // 20-34\n  }\n\n  if (run_project_d) {\n    if (run_project_b && run_project_c) {\n      delay_project_d_min = Math.floor(Math.random() * 20) + 55; // 55-74\n    } else if (run_project_b || run_project_c) {\n      delay_project_d_min = Math.floor(Math.random() * 20) + 30; // 30-49\n    }\n  }\n}\n\n// ===== PROJECT A MINI =====\nif (run_project_a_mini && !run_project_a && !run_project_a_url) {\n  sd.PROJECT_A_MINI_NEXT_AT = sd.PROJECT_A_NEXT_AT;\n\n  // Если mini реально публикует пост, фиксируем последний Project A-like пост.\n  // Это нужно, чтобы URL-пост не вышел слишком близко к mini.\n  sd.PROJECT_A_LAST_POST_AT = now;\n}\n\n// ===== FULL PROJECT A / PROJECT A URL =====\nif (run_project_a || run_project_a_url) {\n  const projectACooldown =\n    (6.5 * 60 * 60 * 1000) +\n    Math.floor(Math.random() * 30 * 60 * 1000);\n\n  // Важно:\n  // run_project_a_url считается полноценным Project A постом.\n  // После него весь Project A-график начинается заново.\n  sd.PROJECT_A_NEXT_AT = now + projectACooldown;\n  sd.PROJECT_A_MINI_NEXT_AT = now + (projectACooldown / 2);\n\n  // Фиксируем любой full Project A-like пост.\n  sd.PROJECT_A_LAST_POST_AT = now;\n}\n\n// ===== PROJECT A URL DAILY MARK =====\nif (run_project_a_url) {\n  const projectATime = getDayParts(now, PROJECT_A_URL_TZ);\n\n  // Отмечаем, что URL-пост сегодня уже был.\n  sd.PROJECT_A_URL_DAY_KEY = projectATime.dayKey;\n}\n\n// ===== PROJECT B =====\nif (run_project_b) {\n  sd.PROJECT_B_POST_COUNT++;\n  sd.PROJECT_B_NEXT_AT =\n    now + (7 * 60 * 60 * 1000) +\n    Math.floor(Math.random() * 120 * 60 * 1000);\n}\n\n// ===== PROJECT C =====\nif (run_project_c) {\n  sd.PROJECT_C_POST_COUNT++;\n  sd.PROJECT_C_NEXT_AT =\n    now + (7.5 * 60 * 60 * 1000) +\n    Math.floor(Math.random() * 120 * 60 * 1000);\n}\n\n// ===== PROJECT D =====\nif (run_project_d) {\n  sd.PROJECT_D_DAY_COUNT++;\n  sd.PROJECT_D_POST_COUNT++;\n\n  if (sd.PROJECT_D_DAY_COUNT >= PROJECT_D_MAX_PER_DAY) {\n    // Лимит дня закрыт.\n    // Следующий запуск сможет пройти только после дневного сброса в Pre-Gate.\n    // NEXT_AT всё равно ставим вперёд, чтобы не было постоянных ложных попыток в этот же день.\n    sd.PROJECT_D_NEXT_AT =\n      now + (12 * 60 * 60 * 1000);\n  } else {\n    sd.PROJECT_D_NEXT_AT =\n      now +\n      PROJECT_D_BASE_COOLDOWN_MS +\n      Math.floor(Math.random() * PROJECT_D_RANDOM_COOLDOWN_MS);\n  }\n}\n\n// ===== MODES =====\nconst project_b_mode = (sd.PROJECT_B_POST_COUNT % 2 === 1) ? 'NEWS' : 'EDU';\nconst project_c_mode = (sd.PROJECT_C_POST_COUNT % 2 === 1) ? 'EDU' : 'NEWS';\n\n// Project D начинает с EDU, если счетчик нечетный\nconst project_d_mode = (sd.PROJECT_D_POST_COUNT % 2 === 1) ? 'EDU' : 'NEWS';\n\nconst selectedId = merged.selected_id || merged.original_selected_id || '';\n\nreturn [{\n  json: {\n    run_project_a,\n    run_project_a_url,\n    run_project_a_mini,\n    run_project_b,\n    run_project_c,\n    run_project_d,\n\n    project_b_mode,\n    project_c_mode,\n    project_d_mode,\n\n    delay_project_b_min,\n    delay_project_c_min,\n    delay_project_d_min,\n\n    original_tweet: merged.original_tweet || '',\n    project_a_generated_post: merged.twitter || '',\n    tweet_url: `https://x.com/i/web/status/${selectedId}`,\n\n    project_b_post_count: sd.PROJECT_B_POST_COUNT,\n    project_c_post_count: sd.PROJECT_C_POST_COUNT,\n    project_d_post_count: sd.PROJECT_D_POST_COUNT,\n\n    project_a_next_at: sd.PROJECT_A_NEXT_AT,\n    project_a_mini_next_at: sd.PROJECT_A_MINI_NEXT_AT,\n    project_a_last_post_at: sd.PROJECT_A_LAST_POST_AT,\n\n    project_a_url_paused: sd.PROJECT_A_URL_PAUSED,\n    project_a_url_day_key: sd.PROJECT_A_URL_DAY_KEY,\n\n    project_d_day_key: sd.PROJECT_D_DAY_KEY,\n    project_d_day_count: sd.PROJECT_D_DAY_COUNT,\n\n    selected_id: selectedId,\n    telegram: merged.telegram || '',\n    reddit_title: merged.reddit_title || '',\n    image_prompt: merged.image_prompt || ''\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5376,
+        -160
+      ],
+      "id": "c8f8c597-16fd-476b-94c4-69ac7c9b8d0f",
+      "name": "Content Commit Gate",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -6560,
+        -64
+      ],
+      "id": "d973a6a1-39a8-4d35-9f6e-7e0ba6db1286",
+      "name": "Wait",
+      "webhookId": "dddee4e5-f501-43c3-948b-83372a143a22"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -9344,
+        -256
+      ],
+      "id": "79ddbd16-038d-4482-aa51-7b0bd60f90b1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "https://<SUPABASE_PROJECT>.supabase.co/rest/v1/posted_news_log",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "post_date,tweet_id,post_text"
+            },
+            {
+              "name": "order",
+              "value": "post_date.desc"
+            },
+            {
+              "name": "limit",
+              "value": "10000"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "<SUPABASE_API_KEY>"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <SUPABASE_API_KEY>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -8560,
+        -48
+      ],
+      "id": "32431f3d-3606-4c59-80b0-cb0e4ecebcdb",
+      "name": "Get Posted News SQL"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items.length) {\n  return [];\n}\n\nconst first = items[0].json;\n\nconst rows = Array.isArray(first)\n  ? first\n  : items.map(item => item.json);\n\nreturn rows\n  .filter(row => row.tweet_id)\n  .map(row => ({\n    json: {\n      tweet_id: String(row.tweet_id).trim(),\n      post_date: row.post_date || '',\n      post_text: row.post_text || ''\n    }\n  }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8384,
+        -48
+      ],
+      "id": "3c695d26-ee0f-4a5f-9773-4ff6d6a282a6",
+      "name": "Normalize Posted News SQL"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://<SUPABASE_PROJECT>.supabase.co/rest/v1/posted_news_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "<SUPABASE_API_KEY>"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <SUPABASE_API_KEY>"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "post_date",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+            },
+            {
+              "name": "tweet_id",
+              "value": "={{ String($json.selected_id || $json.original_selected_id || '').trim() }}"
+            },
+            {
+              "name": "post_text",
+              "value": "={{  $json.original_tweet || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5632,
+        -160
+      ],
+      "id": "fa65ca43-33eb-46fc-93b4-56db3b27a343",
+      "name": "Log Posted News SQL",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://<SUPABASE_PROJECT>.supabase.co/rest/v1/skipped_items_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "<SUPABASE_API_KEY>"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <SUPABASE_API_KEY>"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Author_Username_SKIPPED",
+              "value": "={{ $('Loop Over Items').item.json.author_username || '' }}"
+            },
+            {
+              "name": "Tweet_Text_SKIPPED",
+              "value": "={{ $('Loop Over Items').item.json.prompt_text || '' }}"
+            },
+            {
+              "name": "Tweet_URL_SKIPPED",
+              "value": "={{ `https://x.com/i/web/status/${$('Loop Over Items').item.json.selected_id}` }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -6720,
+        -64
+      ],
+      "id": "a1bde111-67b0-46ad-92f0-6cd148073239",
+      "name": "Append Tweets_SKIPPED SQL",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd5a528e-2a4c-4ec2-8c58-2c3c23c73273",
+              "name": "TG_text",
+              "value": "={{$json.result.text}}",
+              "type": "string"
+            },
+            {
+              "id": "5cdf6c30-1505-4390-b0e6-3ea1b6fceb88",
+              "name": "TG_url",
+              "value": "=https://t.me/<TELEGRAM_CHANNEL_A>/{{$json.result.message_id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4064,
+        288
+      ],
+      "id": "934cb712-90ca-4197-907f-e45a8a3907ba",
+      "name": "For Sheets (TG)",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fd4e2632-7ad2-429a-aa98-1390dae21b1b",
+              "leftValue": "={{ $json.run_geek_mini }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        320
+      ],
+      "id": "956fca08-b494-4c81-82c2-c6ebd2d5563c",
+      "name": "Run Project AG Mini?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "396dfc6e-9dd4-4d5e-bff0-3d848eb25a62",
+              "leftValue": "={{ $json.run_geek }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        -240
+      ],
+      "id": "533d82f6-3f05-4d40-964c-c376f245e646",
+      "name": "Run Project AG?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "396dfc6e-9dd4-4d5e-bff0-3d848eb25a62",
+              "leftValue": "={{ $json.run_eva }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        -64
+      ],
+      "id": "542cc4aa-28aa-4c16-acfa-07c0f3d4d3aa",
+      "name": "Run Project BE?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3ff7eec3-2328-4373-9826-ae1359a2d8aa",
+              "leftValue": "={{ $json.run_nun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        112
+      ],
+      "id": "a00fc316-bf14-4559-9319-e3e779719eb7",
+      "name": "Run Project CN?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "396dfc6e-9dd4-4d5e-bff0-3d848eb25a62",
+              "leftValue": "={{ $json.run_alicebob }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        -432
+      ],
+      "id": "2219473f-29ea-4379-9938-97871ec2c629",
+      "name": "Run Project DAB?"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "ab_job",
+              "value": "ab_job_done"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        -4704,
+        -448
+      ],
+      "id": "b085529d-7868-4fed-8d8b-5bcef559bcae",
+      "name": "Log Project DAB job done"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "396dfc6e-9dd4-4d5e-bff0-3d848eb25a62",
+              "leftValue": "={{ $json.run_geek_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4960,
+        -624
+      ],
+      "id": "a065d498-19ec-4f5d-b48f-0cd3d93b7f94",
+      "name": "Run Project AG URL?"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "geek_url_job",
+              "value": "geek_url_job_done"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        -4704,
+        -640
+      ],
+      "id": "f764d843-20c8-40de-bb66-38c17407bd0a",
+      "name": "Log Project AG URL job done"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Project_A_Content_Subworkflow_ID",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Project_A_Content_Subworkflow_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4704,
+        -256
+      ],
+      "id": "b3aaccf8-88fe-42ca-a27d-a661f30368b2",
+      "name": "Call Project A Content Subworkflow",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Project_C_Content_Subworkflow_ID",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Project_C_Content_Subworkflow_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4704,
+        96
+      ],
+      "id": "16409093-11d9-4ca7-b35d-318a8c85ee7e",
+      "name": "Call Project C Content Subworkflow",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Project_D_Content_Subworkflow_ID",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Project_D_Content_Subworkflow_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4512,
+        -448
+      ],
+      "id": "e4418027-fb39-402f-b750-99f6d2c5dc93",
+      "name": "Call Project D Content Subworkflow",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Project_B_Content_Subworkflow_ID",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Project_B_Content_Subworkflow_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4704,
+        -80
+      ],
+      "id": "a92597ea-aafd-4f48-873b-b80a401d3e57",
+      "name": "Call Project B Content Subworkflow",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Project_A_URL_Subworkflow_ID",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Project_A_URL_Subworkflow_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4512,
+        -640
+      ],
+      "id": "f25d2900-4b19-47a6-908d-ffad03eb1162",
+      "name": "Call Project A URL Subworkflow",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "<GOOGLE_SHEET_ID>",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "TG_Comments_Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TG_text": "={{$json.TG_text}}",
+            "TG_url": "={{$json.TG_url}}"
+          },
+          "matchingColumns": [
+            "TG_text"
+          ],
+          "schema": [
+            {
+              "id": "TG_text",
+              "displayName": "TG_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TG_url",
+              "displayName": "TG_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -3872,
+        288
+      ],
+      "id": "e4ff11f6-1748-4ad7-8c39-6b3a9cef4d65",
+      "name": "Append row in sheet mini-TG",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleApi": {
+          "id": "UEP3suFgwRT2sq5y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Parse AI JSON": {
+      "main": [
+        [
+          {
+            "node": "Check If No News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Content Editor": {
+      "main": [
+        [
+          {
+            "node": "Agent Said “skip” or Glitched?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Fresh News": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score & Rank Tweets. Prepare AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "Check Fresh News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Said “skip” or Glitched?": {
+      "main": [
+        [
+          {
+            "node": "Append Tweets_SKIPPED SQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse AI JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Golden Mentions": {
+      "main": [
+        [
+          {
+            "node": "Format Mentions for GPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Mentions for GPT": {
+      "main": [
+        [
+          {
+            "node": "Get Posted News SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If No News": {
+      "main": [
+        [
+          {
+            "node": "Merge Winner Context",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Content Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make mini-TG Post": {
+      "main": [
+        [
+          {
+            "node": "Send mini post on TG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send mini post on TG1": {
+      "main": [
+        [
+          {
+            "node": "For Sheets (TG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Winner Context": {
+      "main": [
+        [
+          {
+            "node": "Log Posted News SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Pre-Gate": {
+      "main": [
+        [
+          {
+            "node": "Can Generate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Can Generate?": {
+      "main": [
+        [
+          {
+            "node": "Read Golden Mentions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Commit Gate": {
+      "main": [
+        [
+          {
+            "node": "Run Project BE?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Run Project CN?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Run Project AG?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Run Project AG Mini?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Run Project DAB?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Run Project AG URL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Content Pre-Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Posted News SQL": {
+      "main": [
+        [
+          {
+            "node": "Normalize Posted News SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Posted News SQL": {
+      "main": [
+        [
+          {
+            "node": "Score & Rank Tweets. Prepare AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Posted News SQL": {
+      "main": [
+        [
+          {
+            "node": "Content Commit Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Tweets_SKIPPED SQL": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Sheets (TG)": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet mini-TG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project AG Mini?": {
+      "main": [
+        [
+          {
+            "node": "Make mini-TG Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project AG?": {
+      "main": [
+        [
+          {
+            "node": "Call Project A Content Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project BE?": {
+      "main": [
+        [
+          {
+            "node": "Call Project B Content Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project CN?": {
+      "main": [
+        [
+          {
+            "node": "Call Project C Content Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project DAB?": {
+      "main": [
+        [
+          {
+            "node": "Log Project DAB job done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Project DAB job done": {
+      "main": [
+        [
+          {
+            "node": "Call Project D Content Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project AG URL?": {
+      "main": [
+        [
+          {
+            "node": "Log Project AG URL job done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Project AG URL job done": {
+      "main": [
+        [
+          {
+            "node": "Call Project A URL Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "32f4385b-f476-41b4-928a-438772bbac48",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4ca2686d682bbda7f7ca89577ac50014ee569eaa31e678c39d435a26dec4cf59"
+  },
+  "id": "JZzaT7K4ag6ZgHlk",
+  "tags": [
+    {
+      "updatedAt": "2025-10-24T08:54:18.240Z",
+      "createdAt": "2025-10-24T08:54:18.240Z",
+      "id": "bDmErdQqXSBWy24w",
+      "name": "Cryptogeek"
+    },
+    {
+      "updatedAt": "2026-04-06T07:12:05.263Z",
+      "createdAt": "2026-04-06T07:12:05.263Z",
+      "id": "qjqTMhzbeCaVUOep",
+      "name": "MainWF"
+    },
+    {
+      "updatedAt": "2025-10-29T10:43:21.936Z",
+      "createdAt": "2025-10-29T10:43:21.936Z",
+      "id": "vrzXppwTL7dYmLNx",
+      "name": "Production"
+    }
+  ]
+}
